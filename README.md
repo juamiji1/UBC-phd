@@ -1,1 +1,1 @@
-# ubc-phd
+# UBC classes
