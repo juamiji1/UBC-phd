@@ -2,13 +2,24 @@
 
 julia_version = "1.8.2"
 manifest_format = "2.0"
-project_hash = "26f13a90f3c0aa7d525ea2ae4e95947da1450d20"
+project_hash = "691e6bd6e3f618edee0ff070333c85a2798652cc"
+
+[[deps.AMD]]
+deps = ["Libdl", "LinearAlgebra", "SparseArrays", "Test"]
+git-tree-sha1 = "00163dc02b882ca5ec032400b919e5f5011dbd31"
+uuid = "14f7f29c-3bd6-536c-9a0b-7339e30b5a3e"
+version = "0.5.0"
 
 [[deps.AbstractFFTs]]
 deps = ["ChainRulesCore", "LinearAlgebra"]
 git-tree-sha1 = "16b6dbc4cf7caee4e1e75c49485ec67b667098a0"
 uuid = "621f4979-c628-5d54-868e-fcf4e3e8185c"
 version = "1.3.1"
+
+[[deps.AbstractTrees]]
+git-tree-sha1 = "faa260e4cb5aba097a73fab382dd4b5819d8ec8c"
+uuid = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
+version = "0.4.4"
 
 [[deps.Adapt]]
 deps = ["LinearAlgebra", "Requires"]
@@ -66,6 +77,11 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "19a35467a82e236ff51bc17a3a44b69ef35185a2"
 uuid = "6e34b625-4abd-537c-b88f-471c36dfa7a0"
 version = "1.0.8+0"
+
+[[deps.CEnum]]
+git-tree-sha1 = "eb4cb44a499229b3b8426dcfb5dd85333951ff90"
+uuid = "fa961155-64e5-5f13-b03f-caf6b980ea82"
+version = "0.4.2"
 
 [[deps.Cairo_jll]]
 deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll", "JLLWrappers", "LZO_jll", "Libdl", "Pixman_jll", "Pkg", "Xorg_libXext_jll", "Xorg_libXrender_jll", "Zlib_jll", "libpng_jll"]
@@ -184,6 +200,12 @@ git-tree-sha1 = "d05d9e7b7aedff4e5b51a029dced05cfb6125781"
 uuid = "d38c429a-6771-53c6-b99e-75d170b6e991"
 version = "0.6.2"
 
+[[deps.Convex]]
+deps = ["AbstractTrees", "BenchmarkTools", "LDLFactorizations", "LinearAlgebra", "MathOptInterface", "OrderedCollections", "SparseArrays", "Test"]
+git-tree-sha1 = "af4188609c0620ed4b0e4493ed416d3c8b2dadeb"
+uuid = "f65535da-76fb-5f13-bab9-19810c17039a"
+version = "0.15.3"
+
 [[deps.Crayons]]
 git-tree-sha1 = "249fe38abf76d48563e2f4556bebd215aa317e15"
 uuid = "a8cc5b0e-0ffa-5ad4-8c14-923d3ee1735f"
@@ -269,6 +291,18 @@ deps = ["Calculus", "NaNMath", "SpecialFunctions"]
 git-tree-sha1 = "5837a837389fccf076445fce071c8ddaea35a566"
 uuid = "fa6b7ba4-c1ee-5f82-b5fc-ecf0adba8f74"
 version = "0.6.8"
+
+[[deps.ECOS]]
+deps = ["CEnum", "ECOS_jll", "MathOptInterface"]
+git-tree-sha1 = "a10ccdc509a938d02b32904edb037b7045c49665"
+uuid = "e2685f51-7e38-5353-a97d-a921fd2c8199"
+version = "1.1.0"
+
+[[deps.ECOS_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "5f84034ddd642cf595e57d46ea2f085321c260e4"
+uuid = "c2c64177-6a8e-5dca-99a7-64895ad7445f"
+version = "200.0.800+0"
 
 [[deps.Expat_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -516,6 +550,12 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "f6250b16881adf048549549fba48b1161acdac8c"
 uuid = "c1c5ebd0-6772-5130-a774-d5fcae4a789d"
 version = "3.100.1+0"
+
+[[deps.LDLFactorizations]]
+deps = ["AMD", "LinearAlgebra", "SparseArrays", "Test"]
+git-tree-sha1 = "cbf4b646f82bfc58bb48bcca9dcce2eb88da4cd1"
+uuid = "40e66cde-538c-5869-a4ad-c39174c6795b"
+version = "0.10.0"
 
 [[deps.LERC_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
@@ -965,6 +1005,30 @@ deps = ["ChainRulesCore", "CommonSolve", "Printf", "Setfield"]
 git-tree-sha1 = "a3db467ce768343235032a1ca0830fc64158dadf"
 uuid = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
 version = "2.0.8"
+
+[[deps.SCS]]
+deps = ["MathOptInterface", "Requires", "SCS_GPU_jll", "SCS_MKL_jll", "SCS_jll", "SparseArrays"]
+git-tree-sha1 = "2e3ca40559ecaed6ffe9410b06aabcc1e087215d"
+uuid = "c946c3f1-0d1f-5ce8-9dea-7daa1f7e2d13"
+version = "1.1.3"
+
+[[deps.SCS_GPU_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "OpenBLAS32_jll", "Pkg"]
+git-tree-sha1 = "2b3799ff650d0530a19c2a3bd4b158a4f3e4581a"
+uuid = "af6e375f-46ec-5fa0-b791-491b0dfa44a4"
+version = "3.2.1+0"
+
+[[deps.SCS_MKL_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "MKL_jll", "Pkg"]
+git-tree-sha1 = "a4923177e60fdb7f802e1a42a73d0af400eea163"
+uuid = "3f2553a9-4106-52be-b7dd-865123654657"
+version = "3.2.2+0"
+
+[[deps.SCS_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "OpenBLAS32_jll", "Pkg"]
+git-tree-sha1 = "5544538910047c7522908cf87bb0c884a7afff92"
+uuid = "f4f2fc5b-1d94-523c-97ea-2ab488bedf4b"
+version = "3.2.1+0"
 
 [[deps.SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
