@@ -9,6 +9,30 @@ NOTES:
 
 clear all 
 
+*Setting directories 
+if c(username) == "juami" {
+	gl localpath "C:\Users/`c(username)'\Dropbox\My-Research\Guerillas_Development"
+	gl overleafpath "C:\Users/`c(username)'\Dropbox\Overleaf\GD-draft-slv"
+	gl do "C:\Github\Guerrilla-development\code"
+	
+}
+else {
+	*gl path "C:\Users/`c(username)'\Dropbox\"
+}
+
+gl data "${localpath}\2-Data\Salvador"
+gl maps "${localpath}\5-Maps\Salvador"
+gl tables "${overleafpath}\tables"
+gl plots "${overleafpath}\plots"
+
+cd "${data}"
+
+*Setting a pre-scheme for plots
+grstyle init
+grstyle title color black
+grstyle color background white
+grstyle color major_grid dimgray
+
 
 *-------------------------------------------------------------------------------
 *Preparing the data at the producer level 
@@ -480,54 +504,69 @@ merge m:1 segm_id using "${data}/night_light_13_segm_lvl_onu_91_nowater.dta", ke
 merge m:1 segm_id using `Bks', keep(1 3) gen(mergebks200)
 
 
-end
-
 bys control_break_fe_400: egen shwc=mean(within_control) 
 
 *--------------------------------------------------------------------------------------------------------------------------------
+gl depvars "ind_asoc credit_coop credit_bank comer_coop"
+
+label var within_control "Guerrilla control"
+
+cap erase "C:\Users\juami\Dropbox\UBC-PhD\Dev II\Ideas\Idea3\agro.tex"
+cap erase "C:\Users\juami\Dropbox\UBC-PhD\Dev II\Ideas\Idea3\agro.txt"
+
 *Global of border FE for all estimates
-gl breakfe="control_break_fe_50"
+gl breakfe "control_break_fe_50"
 gl controls "within_control i.within_control#c.z_run_cntrl z_run_cntrl"
 gl controls_resid "i.within_control#c.z_run_cntrl z_run_cntrl"
 
-*RDD with break fe and triangular weights 
-local var "comer_coop"
-rdrobust `var' z_run_cntrl, all kernel(triangular) 
-gl h=e(h_l)
-gl b=e(b_l)
+foreach var of global depvars {
 
-*Conditional for all specifications
-gl if "if abs(z_run_cntrl)<=${h}"
+	*RDD with break fe and triangular weights 
+	rdrobust `var' z_run_cntrl, all kernel(triangular) 
+	gl h=e(h_l)
+	gl b=e(b_l)
 
-*Replicating triangular weights
-cap drop tweights
-gen tweights=(1-abs(z_run_cntrl/${h})) ${if}
+	*Conditional for all specifications
+	gl if "if abs(z_run_cntrl)<=${h}"
 
-reghdfe `var' ${controls} [aw=tweights] ${if}, vce(r) a(i.${breakfe}) 
-reghdfe `var' ${controls} [aw=tweights] ${if}, vce(r) noabs
+	*Replicating triangular weights
+	cap drop tweights
+	gen tweights=(1-abs(z_run_cntrl/${h})) ${if}
 
-
-
-
-*RDD with break fe and triangular weights 
-local var "credit_coop"
-rdrobust `var' z_run_cntrl if subsistence==0, all kernel(triangular) 
-gl h=e(h_l)
-gl b=e(b_l)
-
-*Conditional for all specifications
-gl if "if abs(z_run_cntrl)<=${h}"
-cap drop tweights
-gen tweights=(1-abs(z_run_cntrl/${h})) ${if}
-
-reghdfe `var' ${controls} [aw=tweights] ${if} & subsistence==0, vce(r) a(i.${breakfe}) 
-reghdfe `var' ${controls} [aw=tweights] ${if} & subsistence==0, vce(r) noabs
+	reghdfe `var' ${controls} [aw=tweights] ${if}, vce(r) a(i.${breakfe}) 
+	qui: summ `var' if e(sample)==1 & within_control==0, d
+	gl mean_y=round(r(mean), .001)
+	outreg2 using "C:\Users\juami\Dropbox\UBC-PhD\Dev II\Ideas\Idea3\agro.tex", nor2 tex(frag) keep(within_control) addstat("Bandwidth (Km)", ${h}, "Dependent mean", ${mean_y}) label nonote nocons append 
+	
+}
 
 
 
 
 
 
+
+
+
+
+*END
+
+
+
+
+
+/*
+
+preserve
+	
+	keep if abs(z_run_cntrl)<=2
+	gen n=1
+	collapse (mean) n, by(segm_id)
+
+	export excel using "${data}\cenagro_sample.xls", firstrow(variables) replace
+	
+
+restore 
 
 
 
