@@ -499,23 +499,42 @@ keep segm_id portid fb1p06a fb1p06b ind_* asist_tec_* credit_* comer_* subsisten
 append using `ProdS'
 
 
-merge m:1 segm_id using "${data}/night_light_13_segm_lvl_onu_91_nowater.dta", keep(1 3) keepus(control_break_fe_400 within_control z_run_cntrl) gen(wmerge)
+
+END
+*Collapsing at the segm_id level
+
+*drop if ind_asoc==.
+gen m_ind_asoc=(ind_asoc==.)
+gen N=1
+gen n_ind_asoc=1 if ind_asoc!=.
+
+collapse (sum) N n_ind_asoc (mean) m_ind_asoc ind_asoc credit_coop credit_bank comer_coop, by(segm_id)
+
+replace ind_asoc=. if m_ind_asoc==1
+
+merge 1:1 segm_id using "${data}/night_light_13_segm_lvl_onu_91_nowater.dta", keep(1 3) keepus(control_break_fe_400 within_control z_run_cntrl COD_M COD_C COD_D) gen(wmerge)
+
+*----------------->
+merge m:1 segm_id using "${data}/night_light_13_segm_lvl_onu_91_nowater.dta", keep(1 3) keepus(control_break_fe_400 within_control z_run_cntrl COD_M COD_C COD_D) gen(wmerge)
 
 merge m:1 segm_id using `Bks', keep(1 3) gen(mergebks200)
 
 
 bys control_break_fe_400: egen shwc=mean(within_control) 
 
+END
 *--------------------------------------------------------------------------------------------------------------------------------
+gen muni_id=COD_D + COD_M 
+
 gl depvars "ind_asoc credit_coop credit_bank comer_coop"
 
 label var within_control "Guerrilla control"
 
-cap erase "C:\Users\juami\Dropbox\UBC-PhD\Dev II\Ideas\Idea3\agro.tex"
-cap erase "C:\Users\juami\Dropbox\UBC-PhD\Dev II\Ideas\Idea3\agro.txt"
+*cap erase "C:\Users\juami\Dropbox\UBC-PhD\Dev II\Ideas\Idea3\agro.tex"
+*cap erase "C:\Users\juami\Dropbox\UBC-PhD\Dev II\Ideas\Idea3\agro.txt"
 
 *Global of border FE for all estimates
-gl breakfe "control_break_fe_50"
+gl breakfe "control_break_fe_400"
 gl controls "within_control i.within_control#c.z_run_cntrl z_run_cntrl"
 gl controls_resid "i.within_control#c.z_run_cntrl z_run_cntrl"
 
@@ -524,6 +543,7 @@ foreach var of global depvars {
 	*RDD with break fe and triangular weights 
 	rdrobust `var' z_run_cntrl, all kernel(triangular) 
 	gl h=e(h_l)
+	gl h=3.163
 	gl b=e(b_l)
 
 	*Conditional for all specifications
@@ -536,15 +556,28 @@ foreach var of global depvars {
 	reghdfe `var' ${controls} [aw=tweights] ${if}, vce(r) a(i.${breakfe}) 
 	qui: summ `var' if e(sample)==1 & within_control==0, d
 	gl mean_y=round(r(mean), .001)
-	outreg2 using "C:\Users\juami\Dropbox\UBC-PhD\Dev II\Ideas\Idea3\agro.tex", nor2 tex(frag) keep(within_control) addstat("Bandwidth (Km)", ${h}, "Dependent mean", ${mean_y}) label nonote nocons append 
+	*outreg2 using "C:\Users\juami\Dropbox\UBC-PhD\Dev II\Ideas\Idea3\agro.tex", nor2 tex(frag) keep(within_control) addstat("Bandwidth (Km)", ${h}, "Dependent mean", ${mean_y}) label nonote nocons append 
 	
 }
 
 
 
+gl var "ind_asoc"
+gl breakfe "control_break_fe_400"
+gl h=3.163
+*Conditional for all specifications
+gl if "if abs(z_run_cntrl)<=${h}"
 
+*Replicating triangular weights
+cap drop tweights
+gen tweights=(1-abs(z_run_cntrl/${h})) ${if}
+gen ntweights=n_ind_asoc*tweights
 
+*reghdfe $var within_control i.within_control#c.z_run_cntrl z_run_cntrl [aw=tweights] ${if}, vce(r) a(i.${breakfe}) 
 
+reghdfe $var [aw=ntweights] ${if}, vce(r) noabs 
+
+reghdfe $var [aw=tweights] ${if}, vce(r) noabs 
 
 
 
